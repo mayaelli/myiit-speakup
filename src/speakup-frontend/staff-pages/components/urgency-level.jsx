@@ -156,7 +156,7 @@ const UrgentComplaintsWidget = () => {
   return (
     <div className="urgent-complaints-widget">
       <div className="widget-header">
-        <h3 className="widget-title">Urgent Complaints Queue</h3>
+        <h3 className="widget-title">Urgent ComplSEFSEaints Queue</h3>
         <span className="new-count-badge">{complaints.length} New</span>
       </div>
 

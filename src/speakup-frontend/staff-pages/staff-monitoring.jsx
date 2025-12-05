@@ -707,11 +707,7 @@ return (
                   {TAB_LABELS[tabKey]}
                 </button>
               ))}
-              {modalMode === "view" && (
-                <button className="bg-[#800000] text-white border-none px-4 py-2.5 rounded-lg cursor-pointer font-normal text-sm transition-all duration-200 mt-4" onClick={() => switchToManageMode("details")}>
-                  Manage Complaint
-                </button>
-              )}
+              
             </div>
 
             <div className="px-6 sm:px-8 py-5 sm:pt-4 overflow-y-auto flex-1">

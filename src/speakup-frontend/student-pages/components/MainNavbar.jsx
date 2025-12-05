@@ -76,7 +76,7 @@ const MainNavbar = () => {
         <nav className="
             student-main-navbar fixed top-0 right-0 z-[999] 
             lg:left-[260px] 
-            md:left-[240px] 
+            md:left-[260px] 
             
             // Mobile/Small Screens (Sidebar is typically hidden/collapsed, so the navbar should span full width):
             sm:left-0 // Set left offset to 0 for small screens
@@ -89,15 +89,13 @@ const MainNavbar = () => {
             font-['Poppins']
         ">
             <div className="h-full px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4">
-            
+        
                 {/* Left: Page Title Group */}
                 <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                     <p className="text-xs sm:text-sm font-medium text-slate-500 tracking-wide
                         transition-colors duration-300 -mb-1">
-                        {getGreeting()}, {firstName}.
-                        <span className="hidden md:inline ml-1 font-light">
-                            It's great to see you back on SpeakUp.
-                        </span>
+                        {getGreeting()}, {firstName}!
+                        
                     </p>
                     <h1 className="text-xl sm:text-2xl lg:text-[1.875rem] font-extrabold 
                         bg-gradient-to-r from-[#8B0000] via-[#DC143C] to-[#8B0000] 

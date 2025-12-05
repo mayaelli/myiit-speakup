@@ -82,194 +82,163 @@ const Notifications = () => {
   // --- End Logic Section ---
 
   return (
-    <div className="flex min-h-screen font-sans overflow-x-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; }
-      `}</style>
-      
-      {/* Sidebar - Fixed Position with High Z-Index */}
-      <div className="min-h-screen bg-gray-50 flex">
-        <SideBar />
+    <>
+      <SideBar />
 
-      {/* Main Content Area */}
-      <div className="flex-1 w-full md:ml-[280px] transition-all duration-300 relative z-0">
-        {/* Adjusted padding: md:pt-32 ensures content starts below the Navbar */}
-        <div className="p-4 pt-18 md:p-10 md:pt-24">
-          
+      {/* Main content with proper spacing for sidebar */}
+      <div className="min-h-screen lg:ml-[260px]">
+        <div className="p-4 sm:p-8">
           <MainNavbar />
 
-          {/* Added mt-10 to push the controls down further from the Navbar */}
-          <div className="max-w-7xl mx-auto mt-16 relative z-0">
-            
-            {/* --- CONTROLS SECTION --- */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                
-                {/* 1. Filter Buttons (All / Unread) */}
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                  <span className="text-gray-500 text-sm font-medium mr-2 hidden md:inline">Filter:</span>
-                  <button
-                    onClick={() => setActiveTab("all")}
-                    className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      activeTab === "all"
-                        ? "bg-[#8B0000] text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("unread")}
-                    className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      activeTab === "unread"
-                        ? "bg-[#8B0000] text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Unread
-                  </button>
-                </div>
+          <div className="max-w-4xl mt-24 mx-auto">
+            {/* Tab Buttons */}
+            <div className="flex gap-1 mb-6 bg-gray-200 p-1 rounded-lg w-fit">
+              <button
+                onClick={() => setActiveTab("all")}
+                className={`px-5 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  activeTab === "all"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setActiveTab("unread")}
+                className={`px-5 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  activeTab === "unread"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Unread
+              </button>
+            </div>
 
-                {/* 2. Undo Action (Conditional) */}
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 justify-between items-start sm:items-center mb-4">
+              <div className="text-gray-600 text-xs sm:text-sm">
                 {lastDeleted.length > 0 && (
-                  <div className="text-sm text-gray-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 flex items-center gap-2">
-                    <span>Deleted {lastDeleted.length} item(s)</span>
-                    <button onClick={handleUndoDelete} className="text-blue-600 font-bold hover:underline">Undo</button>
-                  </div>
+                  <>
+                    Deleted {lastDeleted.length} notification{lastDeleted.length > 1 ? 's' : ''}.
+                    <button
+                      onClick={handleUndoDelete}
+                      className="ml-2 text-blue-600 hover:text-blue-700 font-medium underline"
+                    >
+                      Undo
+                    </button>
+                  </>
                 )}
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={markAllSeen}
+                  disabled={loading}
+                  className="flex-1 sm:flex-none px-3 py-1.5 bg-[#8B0000] text-white text-xs sm:text-sm rounded-md hover:bg-[#991b1b] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                >
+                  Mark all as read
+                </button>
+                <button
+                  onClick={handleDeleteAll}
+                  disabled={loading || notifications.length === 0}
+                  className="flex-1 sm:flex-none px-3 py-1.5 bg-red-700 text-white text-xs sm:text-sm rounded-md hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                >
+                  Delete all
+                </button>
+              </div>
+            </div>
 
-                {/* 3. Global Actions (Mark Read / Delete All) */}
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                   <button 
-                    onClick={markAllSeen} 
-                    disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-[#8B0000] transition-colors whitespace-nowrap"
-                  >
-                    <i className="fas fa-check-double"></i>
-                    Mark all as read
-                  </button>
-                  
-                  <button 
-                    onClick={handleDeleteAll} 
-                    disabled={loading || notifications.length === 0}
-                    className="
-                      flex items-center gap-2 px-4 py-2 bg-[#991b1b] text-white rounded-lg text-sm font-medium shadow-sm 
-                      hover:bg-[#991b1b] transition-all whitespace-nowrap
-                      
-                      // --- MODIFIED DISABLED STYLES ---
-                      disabled:opacity-100 disabled:bg-red-100 disabled:text-gray-400 disabled:border disabled:border-red-300
-                      disabled:cursor-not-allowed
-    "
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                    Delete all
-                  </button>
+            {/* Notifications List */}
+            <div className="space-y-4">
+              {loading && (
+                <div className="p-6 bg-white rounded-lg shadow border border-gray-100">
+                  <p className="text-gray-500 text-center">Loading notifications…</p>
                 </div>
+              )}
 
-              </div>
+              {!loading && filtered.length === 0 && (
+                <div className="text-center py-16 bg-white rounded-lg shadow border border-gray-100">
+                  <i className="fas fa-inbox text-4xl mb-3 text-gray-300 block"></i>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-1">No notifications</h3>
+                  <p className="text-sm text-gray-500">You're all caught up!</p>
+                </div>
+              )}
+
+              {!loading && filtered.map((notif) => {
+                const isUnread = notif.date > lastSeenAt;
+
+                return (
+                  <div
+                    key={notif.id}
+                    onClick={() => {
+                      markSeenUpTo(notif.date);
+                      navigate("/history", {
+                        state: {
+                          complaintId: notif.complaintId,
+                          focusTab: notif.type === 'feedback' ? 'feedback' : 'details'
+                        }
+                      });
+                    }}
+                    className={`relative p-3 sm:p-4 rounded-lg shadow transition-all cursor-pointer border-l-4 ${
+                      isUnread
+                        ? "bg-red-50 border-l-[#8B0000] hover:shadow-md"
+                        : "bg-white border-l-gray-300 opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    {/* Delete Button */}
+                    <button
+                      aria-label="Delete notification"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteOne(notif.id);
+                      }}
+                      className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+                    >
+                      <i className="fas fa-trash text-xs"></i>
+                    </button>
+
+                    {/* Unread Indicator */}
+                    {isUnread && (
+                      <div className="absolute top-2 right-9 w-2 h-2 bg-[#DC143C] rounded-full animate-pulse"></div>
+                    )}
+
+                    {/* Content */}
+                    <div className="pr-7">
+                      <p className={`text-xs sm:text-sm mb-1.5 flex flex-wrap items-center gap-2 ${
+                        isUnread ? "font-semibold text-gray-900" : "text-gray-700"
+                      }`}>
+                        <span>
+                          {notif.type === 'feedback' && "New feedback on your complaint"}
+                          {notif.type === 'status' && notif.message.replace(/\.$/, '')}
+                        </span>
+                        {notif.category && (
+                          <span className="inline-block px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-900 text-xs font-medium">
+                            {getCategoryLabel(notif.category)}
+                          </span>
+                        )}
+                      </p>
+                      <small className="text-xs text-gray-500 flex items-center gap-1">
+                        <i className="far fa-clock"></i>
+                        {new Date(notif.date).toLocaleString()}
+                      </small>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* --- NOTIFICATIONS TABLE --- */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden relative z-0">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Notification Message
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-24">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {loading && (
-                      <tr>
-                        <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
-                          <div className="animate-pulse">Loading notifications...</div>
-                        </td>
-                      </tr>
-                    )}
-                    
-                    {!loading && filtered.length === 0 && (
-                      <tr>
-                        <td colSpan="4" className="px-6 py-16 text-center text-gray-400">
-                          <i className="fas fa-inbox text-4xl mb-3 opacity-20 block"></i>
-                          No notifications found
-                        </td>
-                      </tr>
-                    )}
-
-                    {!loading && filtered.map((notif) => {
-                      const isUnread = notif.date > lastSeenAt;
-                      
-                      return (
-                        <tr 
-                          key={notif.id}
-                          onClick={() => {
-                            markSeenUpTo(notif.date);
-                            navigate("/history", { state: { complaintId: notif.complaintId, focusTab: notif.type === 'feedback' ? 'feedback' : 'details' } });
-                          }}
-                          className={`
-                            group transition-colors duration-150 cursor-pointer
-                            ${isUnread ? 'bg-red-50/60 hover:bg-red-50' : 'hover:bg-gray-50'}
-                          `}
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              {isUnread && (
-                                <span className="flex-shrink-0 w-2.5 h-2.5 rounded-full bg-[#DC143C] shadow-sm" title="Unread"></span>
-                              )}
-                              <p className={`text-sm ${isUnread ? 'font-bold text-[#8B0000]' : 'font-medium text-gray-800'}`}>
-                                {notif.type === 'feedback' && "New feedback on your complaint"}
-                                {notif.type === 'status' && notif.message.replace(/\.$/, '')}
-                              </p>
-                            </div>
-                          </td>
-                          
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {notif.category ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                {getCategoryLabel(notif.category)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-xs">-</span>
-                            )}
-                          </td>
-                          
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(notif.date).toLocaleString()}
-                          </td>
-                          
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleDeleteOne(notif.id); }}
-                              className="text-gray-400 hover:text-[#b91c1c] w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-all"
-                              title="Delete"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            {/* Footer */}
+            {!loading && filtered.length > 0 && (
+              <div className="mt-10 pt-4 border-t border-gray-200 text-center">
+                <p className="text-xs text-gray-400">
+                  Notifications are displayed in chronological order
+                </p>
               </div>
-            </div>
-           </div> 
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

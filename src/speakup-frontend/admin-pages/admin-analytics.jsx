@@ -658,10 +658,19 @@ const AdminAnalytics = () => {
     <div className="flex min-h-screen bg-gray-50" style={{ fontFamily: "'Poppins', sans-serif" }}>
       <AdminSideBar />
       
-      <main className="flex-1 lg:ml-0">
+      <main className="flex-1 mt-20 lg:ml-0 p-4 sm:p-6 lg:p-8">
         <AdminNavbar />
         
-        <div className="p-4 md:p-6 lg:p-8 xl:p-10 pt-24 ml-6 mt-[100px] lg:pt-32 w-full max-w-[1200px] min-h-screen">
+        <div className="
+          p-4
+          pt-18              
+          lg:pt-28
+          mt-19
+          md:p-6 lg:p-8 xl:p-10
+          sm:ml-0 sm:mt-13 lg:ml-6 
+          w-full max-w-[1300px]
+          min-h-screen
+        ">
           <style>{`
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
             

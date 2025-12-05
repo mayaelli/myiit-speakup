@@ -127,7 +127,7 @@ const StaffDashboard = () => {
       <StaffSideBar />
 
       {/* Main Content */}
-      <main className="flex-1 flex-1 p-4 mt-10 lg:mt-[90px] md:p-6 lg:p-12 transition-all duration-300transition-all duration-300 flex flex-col">
+      <main className="flex-1 flex-1 p-4 mt-10 lg:mt-[90px] md:p-6 lg:p-12 transition-all duration-300 transition-all duration-300 flex flex-col">
         <StaffNavBar />
 
         {/* Analytics Cards */}

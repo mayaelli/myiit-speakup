@@ -304,21 +304,6 @@ const AdminNavbar = () => {
                         
                         {/* Menu Items */}
                         <div className="py-2">
-                            <button 
-                                onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    handleOpenAboutModal();
-                                }}
-                                className="w-full px-5 py-3 flex items-center gap-3
-                                    text-slate-700 font-medium text-sm
-                                    transition-all duration-200
-                                    hover:bg-red-50 hover:text-red-900
-                                    active:bg-red-100">
-                                <i className="fas fa-info-circle w-5 text-center text-slate-400"></i>
-                               
-                            </button>
-                            
-                            <div className="my-1 border-t border-slate-100"></div>
                             
                             <button 
                                 onClick={() => {
@@ -338,10 +323,6 @@ const AdminNavbar = () => {
                 </div>
             )}
 
-            {/* About Modal */}
-            {isAboutModalOpen && (
-                <AboutInfoModal onClose={handleCloseAboutModal} />
-            )}
 
             <style jsx>{`
                 @keyframes slideDown {
@@ -392,44 +373,5 @@ const AdminNavbar = () => {
     );
 }
 
-// About Info Modal Component
-const AboutInfoModal = ({ onClose }) => (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4
-        backdrop-blur-sm animate-[fadeIn_0.3s_ease-out]"
-        onClick={onClose}>
-        
-        <div className="bg-white rounded-3xl p-6 sm:p-10 max-w-md sm:max-w-[500px] w-full
-            shadow-2xl border border-slate-100
-            relative overflow-hidden mt-0 sm:mt-[500px]
-            animate-[scaleIn_0.3s_ease-out]"
-            onClick={(e) => e.stopPropagation()}>
-            
-            {/* Decorative Top Bar */}
-            <div className="absolute top-0 left-0 right-0 h-[5px]
-                bg-gradient-to-r from-red-900 via-red-600 to-yellow-400"></div>
-            
-            
-            <button 
-                onClick={onClose}
-                className="w-full py-3.5 sm:py-4 px-6 rounded-xl
-                    bg-gradient-to-r from-red-900 via-red-700 to-red-600
-                    text-white font-semibold text-sm sm:text-[0.95rem]
-                    shadow-lg shadow-red-900/30
-                    transition-all duration-300
-                    hover:shadow-xl hover:shadow-red-900/40
-                    hover:-translate-y-1
-                    active:translate-y-0 active:scale-[0.98]
-                    relative overflow-hidden group">
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                    Close
-                    <i className="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-800 to-red-600
-                    transform translate-y-full group-hover:translate-y-0
-                    transition-transform duration-300"></div>
-            </button>
-        </div>
-    </div>
-);
 
 export default AdminNavbar;

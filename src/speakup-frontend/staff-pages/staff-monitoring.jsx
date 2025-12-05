@@ -557,7 +557,7 @@ const getStatusClass = (status) => {
     return date.toLocaleString();
   };
 
-  const visibleTabs = modalMode === "view" ? VIEW_TABS : MANAGE_TABS;
+  const visibleTabs = MANAGE_TABS;
 
 return (
   <div className="flex min-h-screen">
@@ -565,12 +565,12 @@ return (
       <StaffSideBar />
 
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-300 flex flex-col ml-0">
-          <StaffNavBar />
+      <main className="flex-1 mt-8 p-0 transition-all duration-300 flex flex-col min-h-screen">
+        <StaffNavBar />
 
-      <div className="flex-1 mt-24 mx-8 mb-8 p-4 sm:p-6 lg:p-10">      
+      <div className="flex-1 mx-8 mb-8 p-4 sm:p-6 lg:p-10">      
       {/* Filters */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-6 sm:mb-8 flex flex-col sm:flex-row gap-4 sm:gap-5 mx-0 sm:mx-5">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-6 sm:mb-8 flex flex-col sm:flex-row gap-4 sm:gap-5 sm:mt-10 mx-0 sm:mx-5">
         <div className="flex-1 min-w-[200px]">
           <label className="block font-semibold text-[#800000] mb-2 text-sm">Search:</label>
           <input

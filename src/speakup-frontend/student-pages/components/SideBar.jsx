@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doSignOut } from "../../../firebase/auth";
+import DraggableButton from "./DraggableButton";
 
 const SideBar = () => {
   const navigate = useNavigate();
@@ -53,16 +54,7 @@ const SideBar = () => {
   return (
     <>
       {/* Mobile Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden fixed top-24 left-4 z-[100] p-3 rounded-xl bg-gradient-to-br from-[#8B1538] to-[#5C0A0A] text-white shadow-lg border border-rose-700/50 hover:scale-105 transition-transform duration-200"
-      >
-        <i
-          className={`fa-solid ${
-            isOpen ? "fa-times" : "fa-bars"
-          } text-xl`}
-        ></i>
-      </button>
+      <DraggableButton isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
       {/* Overlay */}
       {isOpen && (

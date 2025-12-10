@@ -55,7 +55,7 @@ const SideBar = () => {
       {/* Mobile Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="lg:hidden mt-3 fixed top-24 left-4 z-[100] p-2 rounded-md bg-black/60 text-white"
+        className="lg:hidden fixed top-24 left-4 z-[100] p-3 rounded-xl bg-gradient-to-br from-[#8B1538] to-[#5C0A0A] text-white shadow-lg border border-rose-700/50 hover:scale-105 transition-transform duration-200"
       >
         <i
           className={`fa-solid ${
@@ -67,7 +67,7 @@ const SideBar = () => {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/40 z-[90]"
+          className="lg:hidden fixed inset-0 bg-black/60 z-[90] backdrop-blur-sm"
           onClick={toggleSidebar}
         ></div>
       )}
@@ -76,165 +76,178 @@ const SideBar = () => {
       <nav
         className={`
           fixed top-0 left-0 h-full 
-          w-[220px] lg:w-[280px]
-          bg-gradient-to-br from-[#800000] to-[#A0222D]
+          w-[260px] lg:w-[300px]
+          bg-gradient-to-br from-[#8B1538] via-[#6B1129] to-[#5C0A0A]
           text-white z-[1000]
-          shadow-2xl border-r border-[rgba(255,215,0,0.2)]
+          shadow-2xl border-r border-rose-800/30
           backdrop-blur-xl
-          transform transition-all duration-300
+          transform transition-all duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex flex-col h-full py-6 lg:py-8 px-2 overflow-y-auto custom-scroll">
+        <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full py-6 lg:py-8 px-3 overflow-y-auto custom-scroll">
+            
+            {/* LOGO SECTION */}
+            <div className="px-4 pb-6 mb-6 border-b border-rose-700/40">
+              <div className="flex flex-col items-center space-y-3">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-amber-300/20 blur-xl rounded-full"></div>
+                  <img 
+                    src="/speakup_logo.png" 
+                    alt="SpeakUp Logo" 
+                    className="relative w-16 h-16 lg:w-20 lg:h-20 object-contain drop-shadow-2xl"
+                    onError={(e) => { 
+                      if (e.target.src.endsWith('.png')) {
+                        e.target.src = '/speakup_logo.svg';
+                      } else if (e.target.src.endsWith('.svg')) {
+                        e.target.src = '/speakup_logo.jpg';
+                      } else {
+                        e.target.style.display = 'none';
+                      }
+                    }} 
+                  />
+                </div>
+                <div className="text-center">
+                  <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent drop-shadow-lg">
+                    SpeakUp
+                  </h1>
+                  <p className="text-xs text-rose-200/80 mt-1 font-medium tracking-wide">
+                    My.IIT Complaint System
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          {/* LOGO */}
-          <div className="flex flex-col items-center text-center px-4 pb-4 mb-4 border-b border-white/10">
-            <img
-              src="/speakup_logo.png"
-              alt="SpeakUp Logo"
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain mb-2"
-              onError={(e) => {
-                if (e.target.src.endsWith(".png"))
-                  e.target.src = "/speakup_logo.svg";
-                else if (e.target.src.endsWith(".svg"))
-                  e.target.src = "/speakup_logo.jpg";
-              }}
-            />
-            <h1 className="text-2xl lg:text-[28px] font-semibold text-[#FFD700] leading-tight">
-              SpeakUp
-            </h1>
-            <p className="text-[10px] lg:text-[12px] opacity-80 tracking-wide">
-              My.IIT Complaint System
-            </p>
-          </div>
-
-          {/* LINKS */}
-          <ul className="flex flex-col space-y-2">
-            {/* DASHBOARD */}
-            <li
-              onClick={() => handleNavigation("dashboard")}
-              className={`
-                group relative flex items-center gap-2 lg:gap-3 cursor-pointer 
-                px-3 py-2 lg:px-5 lg:py-2.5 mx-2 rounded-xl font-medium text-xs lg:text-sm
-                transition-all duration-300
-                border border-transparent
-                text-white/90
-                hover:text-white hover:translate-x-1
-                hover:bg-[rgba(255,215,0,0.15)]
-                hover:shadow-md hover:border-[rgba(255,215,0,0.3)]
-                ${isActive("/dashboard") &&
-                "bg-[rgba(255,215,0,0.25)] shadow-lg border-l-4 border-[#FFD700] text-white font-semibold"}
-              `}
-            >
-              <i
+            {/* NAVIGATION LINKS */}
+            <ul className="flex flex-col space-y-2 px-2">
+              {/* DASHBOARD */}
+              <li
+                onClick={() => handleNavigation("dashboard")}
                 className={`
-                  fa-solid fa-home text-base lg:text-lg transition-all
-                  ${isActive("/dashboard") ? "text-[#FFD700] scale-110" : "text-[rgba(255,215,0,0.9)]"}
+                  group relative flex items-center gap-3 lg:gap-4 cursor-pointer 
+                  px-4 py-3 lg:py-3.5 rounded-xl font-medium text-sm lg:text-base
+                  transition-all duration-300
+                  ${isActive("/dashboard")
+                    ? "bg-gradient-to-r from-amber-400/25 to-yellow-500/15 border-l-4 border-amber-400 text-white shadow-lg shadow-amber-500/20"
+                    : "text-rose-100/90 hover:text-white hover:bg-rose-900/30 border-l-4 border-transparent hover:border-rose-600/50"
+                  }
                 `}
-              ></i>
-              Dashboard
-            </li>
+              >
+                <i
+                  className={`
+                    fa-solid fa-home text-lg lg:text-xl transition-all
+                    ${isActive("/dashboard") 
+                      ? "text-amber-300 scale-110" 
+                      : "text-rose-300/70 group-hover:text-amber-300 group-hover:scale-105"
+                    }
+                  `}
+                ></i>
+                <span className="font-semibold">Dashboard</span>
+              </li>
 
-            {/* FILE COMPLAINT */}
-            <li
-              onClick={() => handleNavigation("file-complaint")}
-              className={`
-                group relative flex items-center gap-2 lg:gap-3 cursor-pointer 
-                px-3 py-2 lg:px-5 lg:py-2.5 mx-2 rounded-xl font-medium text-xs lg:text-sm
-                transition-all duration-300
-                border border-transparent
-                text-white/90
-                hover:text-white hover:translate-x-1
-                hover:bg-[rgba(255,215,0,0.15)]
-                hover:shadow-md hover:border-[rgba(255,215,0,0.3)]
-                ${isActive("/file-complaint") &&
-                "bg-[rgba(255,215,0,0.25)] shadow-lg border-l-4 border-[#FFD700] text-white font-semibold"}
-              `}
-            >
-              <i
+              {/* FILE COMPLAINT */}
+              <li
+                onClick={() => handleNavigation("file-complaint")}
                 className={`
-                  fa-solid fa-pen-to-square text-base lg:text-lg transition-all
-                  ${isActive("/file-complaint") ? "text-[#FFD700] scale-110" : "text-[rgba(255,215,0,0.9)]"}
+                  group relative flex items-center gap-3 lg:gap-4 cursor-pointer 
+                  px-4 py-3 lg:py-3.5 rounded-xl font-medium text-sm lg:text-base
+                  transition-all duration-300
+                  ${isActive("/file-complaint")
+                    ? "bg-gradient-to-r from-amber-400/25 to-yellow-500/15 border-l-4 border-amber-400 text-white shadow-lg shadow-amber-500/20"
+                    : "text-rose-100/90 hover:text-white hover:bg-rose-900/30 border-l-4 border-transparent hover:border-rose-600/50"
+                  }
                 `}
-              ></i>
-              File Complaint
-            </li>
+              >
+                <i
+                  className={`
+                    fa-solid fa-pen-to-square text-lg lg:text-xl transition-all
+                    ${isActive("/file-complaint") 
+                      ? "text-amber-300 scale-110" 
+                      : "text-rose-300/70 group-hover:text-amber-300 group-hover:scale-105"
+                    }
+                  `}
+                ></i>
+                <span className="font-semibold">File Complaint</span>
+              </li>
 
-            {/* HISTORY */}
-            <li
-              onClick={() => handleNavigation("history")}
-              className={`
-                group relative flex items-center gap-2 lg:gap-3 cursor-pointer 
-                px-3 py-2 lg:px-5 lg:py-2.5 mx-2 rounded-xl font-medium text-xs lg:text-sm
-                transition-all duration-300
-                border border-transparent
-                text-white/90
-                hover:text-white hover:translate-x-1
-                hover:bg-[rgba(255,215,0,0.15)]
-                hover:shadow-md hover:border-[rgba(255,215,0,0.3)]
-                ${isActive("/history") &&
-                "bg-[rgba(255,215,0,0.25)] shadow-lg border-l-4 border-[#FFD700] text-white font-semibold"}
-              `}
-            >
-              <i
+              {/* HISTORY */}
+              <li
+                onClick={() => handleNavigation("history")}
                 className={`
-                  fa-solid fa-clock-rotate-left text-base lg:text-lg transition-all
-                  ${isActive("/history") ? "text-[#FFD700] scale-110" : "text-[rgba(255,215,0,0.9)]"}
+                  group relative flex items-center gap-3 lg:gap-4 cursor-pointer 
+                  px-4 py-3 lg:py-3.5 rounded-xl font-medium text-sm lg:text-base
+                  transition-all duration-300
+                  ${isActive("/history")
+                    ? "bg-gradient-to-r from-amber-400/25 to-yellow-500/15 border-l-4 border-amber-400 text-white shadow-lg shadow-amber-500/20"
+                    : "text-rose-100/90 hover:text-white hover:bg-rose-900/30 border-l-4 border-transparent hover:border-rose-600/50"
+                  }
                 `}
-              ></i>
-              Complaint History
-            </li>
+              >
+                <i
+                  className={`
+                    fa-solid fa-clock-rotate-left text-lg lg:text-xl transition-all
+                    ${isActive("/history") 
+                      ? "text-amber-300 scale-110" 
+                      : "text-rose-300/70 group-hover:text-amber-300 group-hover:scale-105"
+                    }
+                  `}
+                ></i>
+                <span className="font-semibold">Complaint History</span>
+              </li>
 
-            {/* NOTIFICATIONS */}
-            <li
-              onClick={() => handleNavigation("notifications")}
-              className={`
-                group relative flex items-center gap-2 lg:gap-3 cursor-pointer 
-                px-3 py-2 lg:px-5 lg:py-2.5 mx-2 rounded-xl font-medium text-xs lg:text-sm
-                transition-all duration-300
-                border border-transparent
-                text-white/90
-                hover:text-white hover:translate-x-1
-                hover:bg-[rgba(255,215,0,0.15)]
-                hover:shadow-md hover:border-[rgba(255,215,0,0.3)]
-                ${isActive("/notifications") &&
-                "bg-[rgba(255,215,0,0.25)] shadow-lg border-l-4 border-[#FFD700] text-white font-semibold"}
-              `}
-            >
-              <i
+              {/* NOTIFICATIONS */}
+              <li
+                onClick={() => handleNavigation("notifications")}
                 className={`
-                  fa-solid fa-bell text-base lg:text-lg transition-all
-                  ${isActive("/notifications") ? "text-[#FFD700] scale-110" : "text-[rgba(255,215,0,0.9)]"}
+                  group relative flex items-center gap-3 lg:gap-4 cursor-pointer 
+                  px-4 py-3 lg:py-3.5 rounded-xl font-medium text-sm lg:text-base
+                  transition-all duration-300
+                  ${isActive("/notifications")
+                    ? "bg-gradient-to-r from-amber-400/25 to-yellow-500/15 border-l-4 border-amber-400 text-white shadow-lg shadow-amber-500/20"
+                    : "text-rose-100/90 hover:text-white hover:bg-rose-900/30 border-l-4 border-transparent hover:border-rose-600/50"
+                  }
                 `}
-              ></i>
-              Notifications
-            </li>
-          </ul>
+              >
+                <i
+                  className={`
+                    fa-solid fa-bell text-lg lg:text-xl transition-all
+                    ${isActive("/notifications") 
+                      ? "text-amber-300 scale-110" 
+                      : "text-rose-300/70 group-hover:text-amber-300 group-hover:scale-105"
+                    }
+                  `}
+                ></i>
+                <span className="font-semibold">Notifications</span>
+              </li>
+            </ul>
 
-          {/* LOGOUT - Now separate at bottom */}
-          <div className="mt-auto pt-4 border-t border-white/10">
-            <div
-              onClick={() => handleNavigation("logout")}
-              className="
-                group flex items-center gap-2 lg:gap-3 cursor-pointer 
-                px-3 py-2 lg:px-5 lg:py-2.5 mx-2 rounded-xl font-medium text-xs lg:text-sm
-                transition-all duration-300
-                text-white/95
-                bg-black/20 border border-[rgba(255,215,0,0.4)]
-                hover:bg-[rgba(255,69,0,0.2)]
-                hover:border-[rgba(255,69,0,0.6)]
-                hover:shadow-lg hover:text-white
-              "
-            >
-              <i className="fa-solid fa-right-from-bracket text-base lg:text-lg text-[rgba(255,160,122,0.9)] group-hover:text-[#FFA07A] transition-all"></i>
-              Logout
+            {/* LOGOUT - At bottom */}
+            <div className="mt-auto pt-6 px-2 border-t border-rose-700/40">
+              <div
+                onClick={() => handleNavigation("logout")}
+                className="
+                  group flex items-center gap-3 lg:gap-4 cursor-pointer 
+                  px-4 py-3 lg:py-3.5 rounded-xl font-medium text-sm lg:text-base
+                  transition-all duration-300
+                  text-rose-100/90
+                  bg-rose-950/40 border border-red-400/40
+                  hover:bg-gradient-to-r hover:from-red-500/25 hover:to-red-600/15
+                  hover:border-red-400/70
+                  hover:shadow-lg hover:shadow-red-500/20
+                  hover:text-white
+                "
+              >
+                <i className="fa-solid fa-right-from-bracket text-lg lg:text-xl text-red-300/80 group-hover:text-red-200 transition-all group-hover:scale-105"></i>
+                <span className="font-semibold">Logout</span>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Desktop Spacer */}
-      <div className="hidden lg:block lg:w-[280px]"></div>
+      <div className="hidden lg:block lg:w-[300px]"></div>
     </>
   );
 };

@@ -3,6 +3,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import AdminSideBar from './components/AdminSideBar';
 import AdminNavbar from './components/AdminNavBar';
 import { db } from '../../firebase/firebase';
+import DynamicUrgencyAnalytics from './components/DynamicUrgencyAnalytics';
 
 const STATUS_CONFIG = {
   pending: { label: 'Pending', color: '#f97316' },
@@ -286,6 +287,7 @@ const AdminAnalytics = () => {
       parseInt(result[3], 16)
     ] : [0, 0, 0];
   };
+
 
   const generatePDF = async (action = 'download') => {
     if (isGeneratingPDF) return;
@@ -857,29 +859,11 @@ const AdminAnalytics = () => {
                 </div>
               </section>
 
-              <section className="bg-white rounded-2xl p-6 md:p-8 lg:p-10 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <header className="mb-6 md:mb-8 pb-6 border-b-2 border-gray-100">
-                  <h2 className="text-2xl md:text-2xl font-bold text-gray-900 mb-2">Urgency Breakdown</h2>
-                  <p className="text-gray-500 text-sm font-medium">Priority distribution</p>
-                </header>
-                <div className="flex items-end justify-around h-64 gap-4 md:gap-8 p-4 md:p-8 bg-gradient-to-b from-gray-50 to-white rounded-xl">
-                  {Object.entries(URGENCY_CONFIG).map(([key, config]) => (
-                    <div key={key} className="flex-1 flex flex-col items-center h-full max-w-24 md:max-w-32">
-                      <div
-                        className="w-full max-w-14 md:max-w-20 rounded-t-xl transition-all duration-500 min-h-2 relative shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105"
-                        style={{
-                          height: `${(urgencyCounts[key] / maxUrgencyValue) * 100}%`,
-                          background: config.color,
-                        }}
-                      >
-                        <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent rounded-t-xl"></div>
-                      </div>
-                      <p className="mt-4 md:mt-6 text-2xl md:text-3xl font-extrabold text-gray-900">{urgencyCounts[key]}</p>
-                      <p className="mt-1 md:mt-2 text-xs md:text-sm font-semibold text-gray-600">{config.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
+            
+
+              <DynamicUrgencyAnalytics />
+
+              
             </div>
 
             <section className="bg-white rounded-2xl p-6 md:p-8 lg:p-10 mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300">

@@ -36,7 +36,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-color);
   padding: 2rem;
-  max-width: 1100px;
+  max-width: 1300px;
   margin-top: 5rem;
   margin-left: 20rem;
   
@@ -659,7 +659,7 @@
   .complaint-card {
     padding: 1rem;
     border-radius: 6px;
-    margin-top: 9rem;
+    margin-top: 5rem;
   }
 
   .card-header h2 {

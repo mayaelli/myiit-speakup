@@ -437,55 +437,55 @@ const ComplaintHistory = () => {
     const attachments = getAttachments(selectedComplaint);
 
     return (
-      <div className="flex flex-col gap-6 animate-fadeIn">
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <h4 className="text-gray-800 text-sm font-bold uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">
-            {getCategoryLabel(selectedComplaint.category)} Details
-          </h4>
-          {categoryDetails.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-              {categoryDetails.map((info, index) => (
-                <div className="flex flex-col gap-1" key={index}>
-                  <span className="text-xs font-semibold text-gray-500 uppercase">{info.label}</span>
-                  <span className="text-sm text-gray-900 font-medium">{info.value}</span>
-                </div>
-              ))}
+  <div className="flex flex-col gap-4 sm:gap-6 animate-fadeIn px-4 sm:px-0">
+    <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm">
+      <h4 className="text-gray-800 text-xs sm:text-sm font-bold uppercase tracking-wider mb-3 sm:mb-4 pb-2 border-b border-gray-100">
+        {getCategoryLabel(selectedComplaint.category)} Details
+      </h4>
+      {categoryDetails.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-y-6 sm:gap-x-8">
+          {categoryDetails.map((info, index) => (
+            <div className="flex flex-col gap-1" key={index}>
+              <span className="text-xs font-semibold text-gray-500 uppercase">{info.label}</span>
+              <span className="text-sm text-gray-900 font-medium break-words">{info.value}</span>
             </div>
-          ) : (
-            <p className="text-gray-500 text-sm">No specific details provided.</p>
-          )}
+          ))}
         </div>
+      ) : (
+        <p className="text-gray-500 text-sm">No specific details provided.</p>
+      )}
+    </div>
 
-        {attachments.length > 0 && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <h4 className="text-gray-800 text-sm font-bold uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">
-              Attachments ({attachments.length})
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {attachments.map((file, index) => {
-                const label = typeof file === "string" ? file : file?.name || `Attachment ${index + 1}`;
-                const url = typeof file === "string" ? file : file?.url;
-                return (
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-200 hover:bg-gray-100 transition-colors" key={index}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-file-alt text-[#800020] text-sm"></i>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700 truncate">{label}</span>
-                    </div>
-                    {url && (
-                      <a href={url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-[#800020] px-2">
-                        <i className="fas fa-external-link-alt text-xs"></i>
-                      </a>
-                    )}
+    {attachments.length > 0 && (
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm">
+        <h4 className="text-gray-800 text-xs sm:text-sm font-bold uppercase tracking-wider mb-3 sm:mb-4 pb-2 border-b border-gray-100">
+          Attachments ({attachments.length})
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {attachments.map((file, index) => {
+            const label = typeof file === "string" ? file : file?.name || `Attachment ${index + 1}`;
+            const url = typeof file === "string" ? file : file?.url;
+            return (
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-200 hover:bg-gray-100 transition-colors" key={index}>
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden min-w-0 flex-1">
+                  <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-file-alt text-[#800020] text-sm"></i>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">{label}</span>
+                </div>
+                {url && (
+                  <a href={url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-[#800020] px-2 flex-shrink-0">
+                    <i className="fas fa-external-link-alt text-xs"></i>
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    );
+    )}
+  </div>
+);
   };
 
   const renderFeedbackTab = () => {

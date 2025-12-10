@@ -170,7 +170,7 @@ const RegisteredAccountsTable = ({
   };
 
   return (
-    <div className="mt-8 sm:mt-12">
+    <div className="mt-8 sm:mt-12 pb-6">
       <div className="mb-4 sm:mb-6">
         {renderStatus()}
       </div>
@@ -398,7 +398,7 @@ const AdminUserManage = () => {
               <thead className="bg-gradient-to-br from-[#8B1538]/8 to-[#a94922]/6 border-b-2 border-[#8B1538]/15">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">Name</th>
-                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">Email</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">System Email </th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">Organization/Office</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">Role</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-bold text-[#621313] uppercase tracking-wider">Date Added</th>
@@ -489,7 +489,7 @@ const AdminUserManage = () => {
                 />
               </label>
               <label className="block">
-                <span className="block mb-2 text-xs font-semibold text-gray-900">Email</span>
+                <span className="block mb-2 text-xs font-semibold text-gray-900">System Login Email</span>
                 <input
                   type="email"
                   value={createForm.email}

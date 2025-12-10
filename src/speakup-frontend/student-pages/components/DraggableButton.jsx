@@ -1,70 +1,119 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
-function DraggableButton({ isOpen, toggleSidebar }) {
-  const buttonRef = useRef(null);
-  const [pos, setPos] = useState({ x: 20, y: 100 });
-  const [dragging, setDragging] = useState(false);
+export default function DraggableButton({ isOpen, toggleSidebar }) {
+  const btnRef = useRef(null);
+  const pos = useRef({ x: 20, y: 150 });
+  const pointerOffset = useRef({ x: 0, y: 0 });
+  const [isDragging, setDragging] = useState(false);
+
+  // Smooth animation frame
+  const raf = useRef(null);
+
+  useEffect(() => {
+    return () => cancelAnimationFrame(raf.current);
+  }, []);
 
   const startDrag = (e) => {
     setDragging(true);
-  };
-
-  const stopDrag = () => {
-    setDragging(false);
-  };
-
-  const onDrag = (e) => {
-    if (!dragging) return;
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    setPos({ x: clientX - 30, y: clientY - 30 }); // button center offset
+    const rect = btnRef.current.getBoundingClientRect();
+    pointerOffset.current = {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
+
+  const onDrag = (e) => {
+    if (!isDragging) return;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    pos.current.x = clientX - pointerOffset.current.x;
+    pos.current.y = clientY - pointerOffset.current.y;
+
+    smoothUpdate();
+  };
+
+  const stopDrag = () => {
+    if (!isDragging) return;
+    setDragging(false);
+
+    // Snap to nearest edge
+    const screenW = window.innerWidth;
+    const btnWidth = btnRef.current.offsetWidth;
+    const targetX = pos.current.x < screenW / 2 ? 10 : screenW - btnWidth - 10;
+
+    animateTo(targetX);
+  };
+
+  const smoothUpdate = () => {
+    cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => {
+      btnRef.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
+    });
+  };
+
+  // Smooth edge-snapping animation
+  const animateTo = (targetX) => {
+    const speed = 0.2;
+
+    const animate = () => {
+      const dx = targetX - pos.current.x;
+
+      if (Math.abs(dx) < 1) {
+        pos.current.x = targetX;
+        smoothUpdate();
+        return;
+      }
+
+      pos.current.x += dx * speed;
+      smoothUpdate();
+      raf.current = requestAnimationFrame(animate);
+    };
+
+    animate();
   };
 
   return (
     <button
-      ref={buttonRef}
+      ref={btnRef}
       onMouseDown={startDrag}
+      onMouseMove={onDrag}
       onMouseUp={stopDrag}
       onMouseLeave={stopDrag}
-      onMouseMove={onDrag}
       onTouchStart={startDrag}
-      onTouchEnd={stopDrag}
       onTouchMove={onDrag}
+      onTouchEnd={stopDrag}
       onClick={toggleSidebar}
-      style={{
-        left: pos.x,
-        top: pos.y,
-      }}
       className="
         lg:hidden 
         fixed 
-        z-[100] 
-        p-3 
-        rounded-full 
+        z-[9999]
+        p-4
+        rounded-full
         bg-gradient-to-br 
         from-[#8B1538] 
         to-[#5C0A0A] 
         text-white 
-        shadow-lg 
+        shadow-xl 
         border 
         border-rose-700/50 
-        opacity-70
+        opacity-60
         hover:opacity-100
         active:scale-90
-        transition-all
+        transition-opacity
         duration-200
-        cursor-pointer
       "
+      style={{
+        transform: `translate(${pos.current.x}px, ${pos.current.y}px)`,
+        touchAction: "none", // prevents weird scrolling on mobile
+      }}
     >
-      <i
-        className={`fa-solid ${
-          isOpen ? "fa-times" : "fa-bars"
-        } text-xl`}
-      ></i>
+      <i className={`fa-solid ${isOpen ? "fa-times" : "fa-bars"} text-xl`} />
     </button>
   );
 }
-
-export default DraggableButton;

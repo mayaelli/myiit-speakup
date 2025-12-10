@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/authContext';
-import { useStaffNotifications } from '../../../hooks/useStaffNotifications';
+import { useStaffNotificationsState } from '../../../contexts/staffNotificationsContext';
 import { doSignOut } from "../../../firebase/auth";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -16,7 +16,7 @@ const AdminNavbar = () => {
         .map(n => n[0]) // Take the first letter of each word (e.g., ["M", "A"])
         .join('') // Join the letters together (e.g., "MA")
         .toUpperCase(); // Ensure they are uppercase
-    const { unreadCount: unreadNotifications } = useStaffNotifications();
+    const { unreadCount: unreadNotifications } = useStaffNotificationsState();
 
     // --- State for Dropdown and Modal ---
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

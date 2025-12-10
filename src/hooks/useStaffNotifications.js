@@ -1,23 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
 
-const LS_KEY = "staff_notifications_last_seen";
+const LS_SEEN_PREFIX = "staff_notifications_seen_";
 
-const getLastSeen = () => {
+const loadSeenIds = (key) => {
+  if (!key) return [];
   try {
-    const raw = localStorage.getItem(LS_KEY);
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
-  } catch { return 0; }
+    const raw = localStorage.getItem(`${LS_SEEN_PREFIX}${key}`);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
 };
 
-const setLastSeen = (ms) => {
+const saveSeenIds = (key, ids) => {
+  if (!key) return;
   try {
-    const prev = getLastSeen();
-    const next = Math.max(Number(prev) || 0, Number(ms) || 0);
-    localStorage.setItem(LS_KEY, String(next));
+    localStorage.setItem(`${LS_SEEN_PREFIX}${key}`, JSON.stringify(ids || []));
   } catch {}
 };
 
@@ -38,12 +40,20 @@ export function useStaffNotifications() {
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lastSeenAt, setLastSeenAt] = useState(getLastSeen());
+  const [seenIds, setSeenIds] = useState([]);
 
   const prevRef = useRef(new Map());
   const initialLoadRef = useRef(true);
   const [staffRole, setStaffRole] = useState("");
   const [staffEmail, setStaffEmail] = useState("");
+  const seenIdsSet = useMemo(() => new Set(seenIds), [seenIds]);
+  const userKeyRef = useRef("staff::guest");
+  const persistSeenIds = useCallback((updater) => {
+    setSeenIds((prev) => {
+      const next = updater(prev);
+      return next === prev ? prev : next;
+    });
+  }, []);
 
   // Determine staff role from localStorage ("staff" or "kasama")
   useEffect(() => {
@@ -72,9 +82,21 @@ export function useStaffNotifications() {
     setNotifications([]);
     prevRef.current = new Map();
     initialLoadRef.current = true;
-
     const normalizedEmail = (staffEmail || "").trim().toLowerCase();
-    if (!staffRole || !normalizedEmail) { setLoading(false); return; }
+    if (!staffRole || !normalizedEmail) {
+      setSeenIds([]);
+      setLoading(false);
+      return;
+    }
+
+    const userKey = `role:${staffRole}::${normalizedEmail}`;
+    userKeyRef.current = userKey;
+    try {
+      const stored = loadSeenIds(userKey);
+      setSeenIds(Array.isArray(stored) ? stored : []);
+    } catch {
+      setSeenIds([]);
+    }
 
     const qRole = query(collection(db, "complaints"), where("assignedRole", "==", staffRole));
     const unsub = onSnapshot(qRole, (snapshot) => {
@@ -90,7 +112,6 @@ export function useStaffNotifications() {
 
       // Initial load: backfill assignment + feedback since last seen
       if (initialLoadRef.current) {
-        const since = getLastSeen();
         const initial = [];
         snapshot.docs.forEach((doc) => {
           const d = doc.data() || {};
@@ -250,20 +271,39 @@ export function useStaffNotifications() {
     return () => { try { unsub && unsub(); } catch {} };
   }, [staffRole, staffEmail, currentUser?.uid, currentUser?.email]);
 
-  const unreadCount = useMemo(() => notifications.reduce((acc,n)=> (n.date>lastSeenAt?acc+1:acc), 0), [notifications, lastSeenAt]);
+  useEffect(() => {
+    saveSeenIds(userKeyRef.current, seenIds);
+  }, [seenIds]);
 
-  const markAllSeen = () => {
-    const now = Date.now();
-    setLastSeen(now);
-    setLastSeenAt((p)=> Math.max(p, now));
-  };
-  const markSeenUpTo = (ms) => {
-    const v = Number(ms)||0;
-    setLastSeen(v);
-    setLastSeenAt((p)=> Math.max(p, v));
-  };
+  const unreadCount = useMemo(() => {
+    return notifications.reduce((acc, n) => (seenIdsSet.has(n.id) ? acc : acc + 1), 0);
+  }, [notifications, seenIdsSet]);
 
-  return { notifications, loading, unreadCount, lastSeenAt, markAllSeen, markSeenUpTo };
+  const markAllSeen = useCallback(() => {
+    persistSeenIds((prev) => {
+      const set = new Set(prev);
+      let changed = false;
+      notifications.forEach((n) => {
+        if (n?.id && !set.has(n.id)) {
+          set.add(n.id);
+          changed = true;
+        }
+      });
+      if (!changed) return prev;
+      return Array.from(set).slice(-500);
+    });
+  }, [notifications, persistSeenIds]);
+
+  const markNotificationSeen = useCallback((notifOrId) => {
+    const id = typeof notifOrId === "string" ? notifOrId : notifOrId?.id;
+    if (!id) return;
+    persistSeenIds((prev) => {
+      if (prev.includes(id)) return prev;
+      return [...prev.slice(-499), id];
+    });
+  }, [persistSeenIds]);
+
+  return { notifications, loading, unreadCount, seenIds: seenIdsSet, markAllSeen, markNotificationSeen };
 }
 
 export default useStaffNotifications;

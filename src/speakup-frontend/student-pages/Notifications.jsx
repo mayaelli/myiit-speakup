@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const Notifications = () => {
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
-  const { notifications, loading, lastSeenAt, markAllSeen, markSeenUpTo } = useNotifications();
+  const { notifications, loading, seenIds, markAllSeen, markNotificationSeen } = useNotifications();
 
   // --- Logic Section ---
   const DISMISSED_KEY = "student_notifications_dismissed";
@@ -58,11 +58,14 @@ const Notifications = () => {
   };
 
   const filtered = useMemo(() => {
-    if (activeTab === "unread") {
-      return notifications.filter((n) => n.date > lastSeenAt && !dismissedSet.has(n.id));
-    }
-    return notifications.filter((n) => !dismissedSet.has(n.id));
-  }, [notifications, activeTab, lastSeenAt, dismissedSet]);
+    return notifications.filter((n) => {
+      if (dismissedSet.has(n.id)) return false;
+      if (activeTab === "unread") {
+        return !seenIds.has(n.id);
+      }
+      return true;
+    });
+  }, [notifications, activeTab, dismissedSet, seenIds]);
 
   const handleDeleteOne = (id) => {
     const ok = window.confirm("Delete this notification?");
@@ -166,13 +169,13 @@ const Notifications = () => {
                 )}
 
                 {!loading && filtered.map((notif) => {
-                  const isUnread = notif.date > lastSeenAt;
+                  const isUnread = !seenIds.has(notif.id);
 
                   return (
                     <div
                       key={notif.id}
                       onClick={() => {
-                        markSeenUpTo(notif.date);
+                        markNotificationSeen(notif.id);
                         navigate("/history", {
                           state: {
                             complaintId: notif.complaintId,

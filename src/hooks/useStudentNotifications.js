@@ -1,32 +1,28 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
 
-// LocalStorage key to track when student last viewed notifications
-const LS_LAST_SEEN_KEY = "student_notifications_last_seen";
 const LS_NOTIFS_PREFIX = "student_notifications_items_"; // per-user cache
+const LS_SEEN_IDS_PREFIX = "student_notifications_seen_";
 
-// Read last seen timestamp (ms since epoch) from localStorage
-const getLastSeen = () => {
+const loadSeenIds = (key) => {
+  if (!key) return [];
   try {
-    const raw = localStorage.getItem(LS_LAST_SEEN_KEY);
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
+    const raw = localStorage.getItem(`${LS_SEEN_IDS_PREFIX}${key}`);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
   } catch {
-    return 0;
+    return [];
   }
 };
 
-const setLastSeenAt = (ms) => {
+const saveSeenIds = (key, ids) => {
+  if (!key) return;
   try {
-    const current = getLastSeen();
-    const next = Math.max(Number(current) || 0, Number(ms) || 0);
-    localStorage.setItem(LS_LAST_SEEN_KEY, String(next));
+    localStorage.setItem(`${LS_SEEN_IDS_PREFIX}${key}`, JSON.stringify(ids || []));
   } catch {}
 };
-
-const setLastSeenNow = () => setLastSeenAt(Date.now());
 
 // Create a deterministic ID for a notification event
 const makeNotifId = (complaintId, type, token) => `${complaintId}::${type}::${token}`;
@@ -76,11 +72,21 @@ export function useStudentNotifications() {
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lastSeenAt, setLastSeenAtState] = useState(getLastSeen());
+  const [seenIds, setSeenIds] = useState([]);
 
   // Track previous snapshot essential fields to detect diffs
   const prevRef = useRef(new Map()); // complaintId -> { status, feedbackCount, feedbackValue }
   const initialLoadRef = useRef(true);
+  const userKeyRef = useRef("guest");
+
+  const seenIdsSet = useMemo(() => new Set(seenIds), [seenIds]);
+  const persistSeenIds = useCallback((updater) => {
+    setSeenIds((prev) => {
+      const next = updater(prev);
+      if (next === prev) return prev;
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -98,11 +104,18 @@ export function useStudentNotifications() {
     }
 
     const userKey = getUserKey(uid, email);
+    userKeyRef.current = userKey;
     // Rehydrate from cache so items don't disappear on remount
     try {
       const cached = loadNotifs(userKey);
       if (cached.length) setNotifications(cached);
     } catch {}
+    try {
+      const storedSeen = loadSeenIds(userKey);
+      setSeenIds(Array.isArray(storedSeen) ? storedSeen : []);
+    } catch {
+      setSeenIds([]);
+    }
 
     let qUser = null;
     if (uid) {
@@ -110,6 +123,7 @@ export function useStudentNotifications() {
     } else if (email) {
       qUser = query(collection(db, "complaints"), where("userEmail", "==", email));
     } else {
+      setSeenIds([]);
       setLoading(false);
       return;
     }
@@ -117,9 +131,8 @@ export function useStudentNotifications() {
     const unsubscribe = onSnapshot(
       qUser,
       (snapshot) => {
-        // On first load, seed prevRef and backfill notifications since last seen
+        // On first load, seed prevRef and backfill notifications for the cache
         if (initialLoadRef.current) {
-          const since = getLastSeen();
           const initialNotifs = [];
           snapshot.docs.forEach((doc) => {
             const d = doc.data() || {};
@@ -271,35 +284,46 @@ export function useStudentNotifications() {
     };
   }, [currentUser]);
 
-  // Refresh lastSeenAt when auth identity changes (e.g., login/logout)
   useEffect(() => {
-    setLastSeenAtState(getLastSeen());
-  }, [currentUser?.uid]);
+    saveSeenIds(userKeyRef.current, seenIds);
+  }, [seenIds]);
 
   const unreadCount = useMemo(() => {
-    return notifications.reduce((acc, n) => (n.date > lastSeenAt ? acc + 1 : acc), 0);
-  }, [notifications, lastSeenAt]);
+    return notifications.reduce((acc, n) => (seenIdsSet.has(n.id) ? acc : acc + 1), 0);
+  }, [notifications, seenIdsSet]);
 
   // Markers that update both localStorage and state
   const markAllSeen = () => {
-    const now = Date.now();
-    try { setLastSeenAt(now); } catch {}
-    setLastSeenAtState((prev) => Math.max(prev, now));
+    persistSeenIds((prev) => {
+      const set = new Set(prev);
+      let changed = false;
+      notifications.forEach((n) => {
+        if (n?.id && !set.has(n.id)) {
+          set.add(n.id);
+          changed = true;
+        }
+      });
+      if (!changed) return prev;
+      return Array.from(set).slice(-500);
+    });
   };
 
-  const markSeenUpTo = (ms) => {
-    const val = Number(ms) || 0;
-    try { setLastSeenAt(val); } catch {}
-    setLastSeenAtState((prev) => Math.max(prev, val));
-  };
+  const markNotificationSeen = useCallback((notifOrId) => {
+    const id = typeof notifOrId === "string" ? notifOrId : notifOrId?.id;
+    if (!id) return;
+    persistSeenIds((prev) => {
+      if (prev.includes(id)) return prev;
+      return [...prev.slice(-499), id];
+    });
+  }, [persistSeenIds]);
 
   return {
     notifications,
     loading,
     unreadCount,
-    lastSeenAt,
+    seenIds: seenIdsSet,
     markAllSeen,
-    markSeenUpTo,
+    markNotificationSeen,
   };
 }
 

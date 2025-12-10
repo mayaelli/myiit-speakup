@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AdminSideBar from "./components/AdminSideBar";
 import AdminNavbar from "./components/AdminNavBar";
-import { useAdminNotifications } from "../../hooks/useAdminNotifications";
+import { useAdminNotificationsState } from "../../contexts/adminNotificationsContext";
 import { useNavigate } from "react-router-dom";
 
 const AdminNotifications = () => {
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
-  const { notifications, loading, lastSeenAt, markAllSeen, markSeenUpTo } = useAdminNotifications();
+  const { notifications, loading, seenIds, markAllSeen, markNotificationSeen } = useAdminNotificationsState();
 
   // Persistently dismissed list
   const DISMISSED_KEY = "admin_notifications_dismissed";
@@ -43,7 +43,12 @@ const AdminNotifications = () => {
     };
   }, [lastDeleted]);
 
-  const filtered = useMemo(() => (activeTab === "unread" ? notifications.filter((n) => n.date > lastSeenAt) : notifications), [notifications, activeTab, lastSeenAt]);
+  const filtered = useMemo(() => {
+    if (activeTab === "unread") {
+      return notifications.filter((n) => !seenIds.has(n.id));
+    }
+    return notifications;
+  }, [notifications, activeTab, seenIds]);
   const shown = useMemo(() => filtered.filter((n)=> !dismissedSet.has(n.id)), [filtered, dismissedSet]);
 
   const handleDeleteOne = (id) => {
@@ -145,12 +150,12 @@ const AdminNotifications = () => {
                 <div
                   key={n.id}
                   className={`relative p-3 sm:p-4 rounded-lg shadow transition-all cursor-pointer border-l-4 ${
-                    n.date > lastSeenAt
+                    !seenIds.has(n.id)
                       ? "bg-red-50 border-l-[#8B0000] font-semibold hover:shadow-md"
                       : "bg-white border-l-gray-300 opacity-80"
                   }`}
                   onClick={() => {
-                    markSeenUpTo(n.date);
+                    markNotificationSeen(n.id);
                     const focusTab = n.type === 'feedback' ? 'feedback' : (n.type === 'status' ? 'status' : 'details');
                     navigate('/amonitorcomplaints', { state: { complaintId: n.complaintId, focusTab } });
                   }}
@@ -165,14 +170,14 @@ const AdminNotifications = () => {
                   </button>
 
                   {/* Unread Dot */}
-                  {n.date > lastSeenAt && (
+                  {!seenIds.has(n.id) && (
                     <div className="absolute top-2 right-9 w-2 h-2 bg-[#8B0000] rounded-full animate-pulse"></div>
                   )}
 
                   {/* Content */}
                   <div className="pr-7">
                     <p className="text-sm sm:text-base mb-1.5 flex flex-wrap items-center gap-2">
-                      <span className={n.date > lastSeenAt ? "text-gray-900" : "text-gray-700"}>
+                      <span className={!seenIds.has(n.id) ? "text-gray-900" : "text-gray-700"}>
                         {n.title}
                       </span>
                       {n.category && (

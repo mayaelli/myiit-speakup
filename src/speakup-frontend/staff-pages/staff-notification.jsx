@@ -1,33 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import SideBar from "./components/StaffSideBar";
 import AdminNavbar from "./components/StaffNavBar";
-import { useStaffNotifications } from "../../hooks/useStaffNotifications";
+import { useStaffNotificationsState } from "../../contexts/staffNotificationsContext";
 import { useNavigate } from "react-router-dom";
-
-const LS_KEY = "staff_notifications_last_seen";
-
-const getLastSeen = () => {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
-  } catch {
-    return 0;
-  }
-};
-
-const setLastSeen = (ms) => {
-  try {
-    const prev = getLastSeen();
-    const next = Math.max(prev || 0, Number(ms) || 0);
-    localStorage.setItem(LS_KEY, String(next));
-  } catch {}
-};
 
 const StaffNotifications = () => {
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
-  const { notifications: items, lastSeenAt, markAllSeen: markAllAsRead, markSeenUpTo: markItemRead, loading } = useStaffNotifications();
+  const { notifications: items, seenIds, markAllSeen: markAllAsRead, markNotificationSeen: markItemRead, loading } = useStaffNotificationsState();
 
   // Persistently dismissed list
   const DISMISSED_KEY = "staff_notifications_dismissed";
@@ -63,7 +43,13 @@ const StaffNotifications = () => {
     };
   }, [lastDeleted]);
 
-  const filtered = useMemo(() => (activeTab === "unread" ? items.filter((n)=> n.date > lastSeenAt) : items), [items, activeTab, lastSeenAt]);
+  const filtered = useMemo(() => {
+    if (activeTab === "unread") {
+      return items.filter((n) => !seenIds.has(n.id));
+    }
+    return items;
+  }, [items, activeTab, seenIds]);
+
   const shown = useMemo(() => filtered.filter((n)=> !dismissedSet.has(n.id)), [filtered, dismissedSet]);
 
   const handleDeleteOne = (id) => {
@@ -193,22 +179,22 @@ const StaffNotifications = () => {
             <div
               key={n.id}
               className={`group relative bg-white rounded-xl md:rounded-2xl p-3.5 md:p-5 lg:p-6 border-l-4 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer hover:translate-x-1 md:hover:translate-x-2 lg:hover:translate-x-3 hover:-translate-y-0.5 animate-[slideIn_0.4s_ease_forwards] ${
-                n.date > lastSeenAt
+                !seenIds.has(n.id)
                   ? "bg-gradient-to-br from-[#FFFAF0] via-white to-[#FFF8F0] border-l-[#FFD700] shadow-[0_4px_20px_rgba(255,215,0,0.2)] hover:shadow-[0_8px_30px_rgba(255,215,0,0.3)]"
                   : "border-gray-200 hover:border-gray-300"
               }`}
               style={{ 
                 animationDelay: `${idx * 0.1}s`,
-                borderLeftColor: n.date > lastSeenAt ? '#FFD700' : undefined
+                borderLeftColor: !seenIds.has(n.id) ? '#FFD700' : undefined
               }}
               onClick={() => {
-                markItemRead(n.date);
+                markItemRead(n.id);
                 const focusTab = n.type === 'feedback' ? 'feedback' : (n.type === 'status' ? 'status' : 'details');
                 navigate('/smonitorcomplaints', { state: { complaintId: n.complaintId, focusTab } });
               }}
             >
               {/* Unread indicator dot */}
-              {n.date > lastSeenAt && (
+              {!seenIds.has(n.id) && (
                 <div className="absolute top-3 right-3 md:top-4 md:right-4 lg:top-6 lg:right-6">
                   <span className="relative flex h-2.5 w-2.5 md:h-3 md:w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DC143C] opacity-75"></span>
@@ -228,16 +214,16 @@ const StaffNotifications = () => {
               
               {/* Content icon - Vertical line */}
               <div className={`absolute left-2 md:left-3 top-4 md:top-5 lg:top-6 w-1 h-10 md:h-12 rounded-full ${
-                n.date > lastSeenAt ? 'bg-gradient-to-b from-[#FFD700] to-[#FFA500]' : 'bg-gradient-to-b from-gray-300 to-gray-200'
+                !seenIds.has(n.id) ? 'bg-gradient-to-b from-[#FFD700] to-[#FFA500]' : 'bg-gradient-to-b from-gray-300 to-gray-200'
               }`}></div>
               
               {/* Title and content */}
               <div className="pr-8 md:pr-10">
                 <p className={`m-0 mb-2 md:mb-3 text-xs md:text-sm lg:text-base font-semibold leading-relaxed flex items-start gap-1.5 md:gap-2 ${
-                  n.date > lastSeenAt ? "text-[#8B0000]" : "text-gray-700"
+                  !seenIds.has(n.id) ? "text-[#8B0000]" : "text-gray-700"
                 }`}>
                   <i className={`fas ${n.type === 'feedback' ? 'fa-comment-dots' : n.type === 'status' ? 'fa-info-circle' : 'fa-bell'} text-[10px] md:text-xs lg:text-sm mt-0.5 flex-shrink-0 ${
-                    n.date > lastSeenAt ? 'text-[#DC143C]' : 'text-gray-400'
+                    !seenIds.has(n.id) ? 'text-[#DC143C]' : 'text-gray-400'
                   }`}></i>
                   <span className="flex-1">
                     {n.title || "Notification"}
@@ -251,7 +237,7 @@ const StaffNotifications = () => {
                 </p>
                 
                 <small className={`flex items-center gap-1.5 md:gap-2 text-[0.7rem] md:text-xs lg:text-[0.85rem] font-medium ${
-                  n.date > lastSeenAt ? "text-[#DC143C]" : "text-gray-500"
+                  !seenIds.has(n.id) ? "text-[#DC143C]" : "text-gray-500"
                 }`}>
                   <i className="far fa-clock text-[10px] md:text-xs"></i>
                   {new Date(n.date).toLocaleString()}

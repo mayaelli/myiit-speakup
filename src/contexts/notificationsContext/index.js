@@ -9,8 +9,9 @@ export function useNotifications() {
     notifications: [],
     loading: false,
     unreadCount: 0,
-    lastSeenAt: 0,
+    seenIds: new Set(),
     markAllSeen: () => {},
+    markNotificationSeen: () => {},
   };
 }
 
